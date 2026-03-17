@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { PasswordSetup } from './components/PasswordSetup'
 import { Login } from './components/Login'
 import { FileTreeView } from './components/FileTreeView'
@@ -427,27 +428,39 @@ function App() {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        {!sidebarCollapsed && (
-          <div 
-            className="border-r border-border overflow-y-auto" 
-            style={{ 
-              backgroundColor: 'var(--card)',
-              width: `${editorSettings.sidebarWidth}px`
-            }}
-          >
-            <FileTreeView
-              tree={fileTree}
-              activeFileId={activeFileId}
-              onFileClick={handleFileClick}
-              onToggleFolder={handleToggleFolder}
-              onRename={handleRename}
-              onDelete={handleDelete}
-              onNewFile={(parentId) => handleNewItem('file', parentId)}
-              onNewFolder={(parentId) => handleNewItem('folder', parentId)}
-              onMove={handleMove}
-            />
-          </div>
-        )}
+        <AnimatePresence initial={false}>
+          {!sidebarCollapsed && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ 
+                width: editorSettings.sidebarWidth, 
+                opacity: 1 
+              }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ 
+                type: 'tween',
+                duration: 0.2,
+                ease: 'easeInOut'
+              }}
+              className="border-r border-border overflow-y-auto" 
+              style={{ 
+                backgroundColor: 'var(--card)',
+              }}
+            >
+              <FileTreeView
+                tree={fileTree}
+                activeFileId={activeFileId}
+                onFileClick={handleFileClick}
+                onToggleFolder={handleToggleFolder}
+                onRename={handleRename}
+                onDelete={handleDelete}
+                onNewFile={(parentId) => handleNewItem('file', parentId)}
+                onNewFolder={(parentId) => handleNewItem('folder', parentId)}
+                onMove={handleMove}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="flex-1 flex flex-col overflow-hidden">
           {activeFile && activeFile.type === 'file' ? (
