@@ -8,6 +8,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import { cn } from '@/lib/utils'
+import { useState } from 'react'
 
 interface FileTreeNodeProps {
   node: TreeNode
@@ -19,6 +20,7 @@ interface FileTreeNodeProps {
   onDelete: (nodeId: string) => void
   onNewFile: (parentId: string) => void
   onNewFolder: (parentId: string) => void
+  onMove: (nodeId: string, newParentId: string | null) => void
   level: number
 }
 
@@ -32,6 +34,7 @@ function FileTreeNode({
   onDelete,
   onNewFile,
   onNewFolder,
+  onMove,
   level,
 }: FileTreeNodeProps) {
   const isFile = node.type === 'file'
@@ -39,6 +42,8 @@ function FileTreeNode({
   const isExpanded = isFolder && node.expanded
   const isActive = isFile && node.id === activeFileId
   const children = isFolder ? getChildNodes(tree, node.id) : []
+  
+  const [isDragOver, setIsDragOver] = useState(false)
 
   const handleClick = () => {
     if (isFile) {
@@ -46,6 +51,50 @@ function FileTreeNode({
     } else {
       onToggleFolder(node.id)
     }
+  }
+  
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('nodeId', node.id)
+  }
+  
+  const handleDragOver = (e: React.DragEvent) => {
+    if (!isFolder) return
+    
+    e.preventDefault()
+    e.stopPropagation()
+    e.dataTransfer.dropEffect = 'move'
+    setIsDragOver(true)
+  }
+  
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(false)
+  }
+  
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(false)
+    
+    if (!isFolder) return
+    
+    const draggedNodeId = e.dataTransfer.getData('nodeId')
+    if (!draggedNodeId || draggedNodeId === node.id) return
+    
+    const draggedNode = tree[draggedNodeId]
+    if (!draggedNode) return
+    
+    if (draggedNode.type === 'folder') {
+      let current: TreeNode | undefined = node
+      while (current) {
+        if (current.id === draggedNodeId) return
+        current = current.parentId ? tree[current.parentId] : undefined
+      }
+    }
+    
+    onMove(draggedNodeId, node.id)
   }
 
   return (
@@ -56,10 +105,16 @@ function FileTreeNode({
             className={cn(
               'flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer transition-colors',
               'hover:bg-muted/50',
-              isActive && 'bg-accent/20 border-l-2 border-accent'
+              isActive && 'bg-accent/20 border-l-2 border-accent',
+              isDragOver && isFolder && 'bg-accent/30 border-2 border-accent border-dashed'
             )}
             style={{ paddingLeft: `${level * 16 + 8}px` }}
             onClick={handleClick}
+            draggable
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
           >
             {isFolder && (
               <div className="flex-shrink-0 w-4 h-4 flex items-center justify-center transition-transform">
@@ -121,6 +176,7 @@ function FileTreeNode({
           onDelete={onDelete}
           onNewFile={onNewFile}
           onNewFolder={onNewFolder}
+          onMove={onMove}
           level={level + 1}
         />
       ))}
@@ -137,6 +193,7 @@ interface FileTreeViewProps {
   onDelete: (nodeId: string) => void
   onNewFile: (parentId: string | null) => void
   onNewFolder: (parentId: string | null) => void
+  onMove: (nodeId: string, newParentId: string | null) => void
 }
 
 export function FileTreeView({
@@ -148,8 +205,35 @@ export function FileTreeView({
   onDelete,
   onNewFile,
   onNewFolder,
+  onMove,
 }: FileTreeViewProps) {
   const rootNodes = getChildNodes(tree, null)
+  const [isDragOverRoot, setIsDragOverRoot] = useState(false)
+  
+  const handleRootDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setIsDragOverRoot(true)
+  }
+  
+  const handleRootDragLeave = () => {
+    setIsDragOverRoot(false)
+  }
+  
+  const handleRootDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOverRoot(false)
+    
+    const draggedNodeId = e.dataTransfer.getData('nodeId')
+    if (!draggedNodeId) return
+    
+    const draggedNode = tree[draggedNodeId]
+    if (!draggedNode) return
+    
+    if (draggedNode.parentId !== null) {
+      onMove(draggedNodeId, null)
+    }
+  }
 
   if (rootNodes.length === 0) {
     return (
@@ -166,7 +250,12 @@ export function FileTreeView({
   }
 
   return (
-    <div className="py-2">
+    <div 
+      className={cn("py-2 min-h-full", isDragOverRoot && "bg-accent/10")}
+      onDragOver={handleRootDragOver}
+      onDragLeave={handleRootDragLeave}
+      onDrop={handleRootDrop}
+    >
       {rootNodes.map((node) => (
         <FileTreeNode
           key={node.id}
@@ -179,6 +268,7 @@ export function FileTreeView({
           onDelete={onDelete}
           onNewFile={onNewFile}
           onNewFolder={onNewFolder}
+          onMove={onMove}
           level={0}
         />
       ))}

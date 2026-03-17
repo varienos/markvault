@@ -262,6 +262,22 @@ function App() {
     saveViewMode(mode)
   }
 
+  const handleMove = (nodeId: string, newParentId: string | null) => {
+    const node = fileTree[nodeId]
+    if (!node) return
+    
+    if (node.parentId === newParentId) return
+    
+    const newTree = {
+      ...fileTree,
+      [nodeId]: { ...node, parentId: newParentId },
+    }
+    
+    setFileTree(newTree)
+    saveFileTree(newTree)
+    toast.success('Moved successfully')
+  }
+
   if (authState === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -363,6 +379,7 @@ function App() {
             onDelete={handleDelete}
             onNewFile={(parentId) => handleNewItem('file', parentId)}
             onNewFolder={(parentId) => handleNewItem('folder', parentId)}
+            onMove={handleMove}
           />
         </div>
 
