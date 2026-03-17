@@ -31,7 +31,10 @@ pids
 .file-manifest
 .devcontainer/
 
+# Spark
 .spark-workbench-id
+.spark-initial-sha
+spark.meta.json
 
 # Claude & AI araçları
 .claude/
