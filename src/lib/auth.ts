@@ -4,6 +4,7 @@ const STORAGE_KEYS = {
   ACTIVE_FILE: 'md_active_file',
   VIEW_MODE: 'md_view_mode',
   AUTHENTICATED: 'md_authenticated',
+  SIDEBAR_COLLAPSED: 'md_sidebar_collapsed',
 } as const
 
 export async function hashPassword(password: string): Promise<string> {

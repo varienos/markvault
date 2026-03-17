@@ -4,6 +4,7 @@ import { Login } from './components/Login'
 import { FileTreeView } from './components/FileTreeView'
 import { MarkdownEditor } from './components/MarkdownEditor'
 import { Settings } from './components/Settings'
+import { Terminal } from './components/Terminal'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import {
@@ -24,7 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from './components/ui/alert-dialog'
-import { Folder, FileText, Code, Columns, Eye, SignOut, Check, Gear } from '@phosphor-icons/react'
+import { Folder, FileText, Code, Columns, Eye, SignOut, Check, Gear, TerminalWindow, SidebarSimple } from '@phosphor-icons/react'
 import { toast, Toaster } from 'sonner'
 import { FileTree, ViewMode, FolderNode } from './lib/types'
 import {
@@ -47,6 +48,8 @@ import {
   generateId,
   deleteNodeRecursive,
   countWords,
+  getSidebarCollapsed,
+  setSidebarCollapsed,
 } from './lib/storage'
 import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
 import { cn } from './lib/utils'
@@ -58,6 +61,8 @@ function App() {
   const [fileContent, setFileContent] = useState('')
   const [viewMode, setViewModeState] = useState<ViewMode>('source')
   const [isSaving, setIsSaving] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsedState] = useState(false)
+  const [terminalOpen, setTerminalOpen] = useState(false)
   
   const [renameDialogOpen, setRenameDialogOpen] = useState(false)
   const [renameNodeId, setRenameNodeId] = useState<string | null>(null)
@@ -103,6 +108,9 @@ function App() {
       
       const savedViewMode = getViewMode()
       setViewModeState(savedViewMode)
+      
+      const savedSidebarCollapsed = getSidebarCollapsed()
+      setSidebarCollapsedState(savedSidebarCollapsed)
       
       const settings = getEditorSettings()
       setEditorSettings(settings)
@@ -291,6 +299,12 @@ function App() {
     setEditorSettings(newSettings)
   }
 
+  const handleToggleSidebar = () => {
+    const newState = !sidebarCollapsed
+    setSidebarCollapsedState(newState)
+    setSidebarCollapsed(newState)
+  }
+
   if (authState === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -315,6 +329,17 @@ function App() {
       <Toaster position="top-right" />
       
       <div className="h-12 border-b border-border flex items-center px-3 gap-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleToggleSidebar}
+          className="gap-2"
+        >
+          <SidebarSimple size={16} />
+        </Button>
+
+        <div className="h-6 w-px bg-border" />
+
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -373,6 +398,16 @@ function App() {
         <Button
           variant="ghost"
           size="sm"
+          onClick={() => setTerminalOpen(true)}
+          className="gap-2"
+        >
+          <TerminalWindow size={16} />
+          <span className="hidden md:inline">Terminal</span>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setSettingsOpen(true)}
           className="gap-2"
         >
@@ -392,25 +427,27 @@ function App() {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        <div 
-          className="border-r border-border overflow-y-auto" 
-          style={{ 
-            backgroundColor: 'var(--card)',
-            width: `${editorSettings.sidebarWidth}px`
-          }}
-        >
-          <FileTreeView
-            tree={fileTree}
-            activeFileId={activeFileId}
-            onFileClick={handleFileClick}
-            onToggleFolder={handleToggleFolder}
-            onRename={handleRename}
-            onDelete={handleDelete}
-            onNewFile={(parentId) => handleNewItem('file', parentId)}
-            onNewFolder={(parentId) => handleNewItem('folder', parentId)}
-            onMove={handleMove}
-          />
-        </div>
+        {!sidebarCollapsed && (
+          <div 
+            className="border-r border-border overflow-y-auto" 
+            style={{ 
+              backgroundColor: 'var(--card)',
+              width: `${editorSettings.sidebarWidth}px`
+            }}
+          >
+            <FileTreeView
+              tree={fileTree}
+              activeFileId={activeFileId}
+              onFileClick={handleFileClick}
+              onToggleFolder={handleToggleFolder}
+              onRename={handleRename}
+              onDelete={handleDelete}
+              onNewFile={(parentId) => handleNewItem('file', parentId)}
+              onNewFolder={(parentId) => handleNewItem('folder', parentId)}
+              onMove={handleMove}
+            />
+          </div>
+        )}
 
         <div className="flex-1 flex flex-col overflow-hidden">
           {activeFile && activeFile.type === 'file' ? (
@@ -535,6 +572,11 @@ function App() {
         open={settingsOpen} 
         onOpenChange={setSettingsOpen}
         onSettingsChange={handleSettingsChange}
+      />
+
+      <Terminal 
+        open={terminalOpen} 
+        onOpenChange={setTerminalOpen}
       />
     </div>
   )

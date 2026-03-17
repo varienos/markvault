@@ -91,3 +91,11 @@ export function deleteNodeRecursive(tree: FileTree, nodeId: string): FileTree {
 export function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(word => word.length > 0).length
 }
+
+export function getSidebarCollapsed(): boolean {
+  return localStorage.getItem(STORAGE_KEYS.SIDEBAR_COLLAPSED) === 'true'
+}
+
+export function setSidebarCollapsed(collapsed: boolean): void {
+  localStorage.setItem(STORAGE_KEYS.SIDEBAR_COLLAPSED, collapsed.toString())
+}
