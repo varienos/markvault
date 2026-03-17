@@ -32,3 +32,23 @@ pids
 .devcontainer/
 
 .spark-workbench-id
+
+# Claude & AI araçları
+.claude/
+CLAUDE.md
+.cursorrules
+.cursorignore
+.cursor/
+.aider*
+.continue/
+.codeium/
+.copilot/
+.github/copilot/
+.tabnine*
+.sourcery.yaml
+.windsurf/
+.cline/
+.roo/
+.codex/
+AGENTS.md
+GEMINI.md
