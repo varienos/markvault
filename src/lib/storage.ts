@@ -99,3 +99,29 @@ export function getSidebarCollapsed(): boolean {
 export function setSidebarCollapsed(collapsed: boolean): void {
   localStorage.setItem(STORAGE_KEYS.SIDEBAR_COLLAPSED, collapsed.toString())
 }
+
+export function getTerminalCollapsed(): boolean {
+  return localStorage.getItem(STORAGE_KEYS.TERMINAL_COLLAPSED) === 'true'
+}
+
+export function setTerminalCollapsed(collapsed: boolean): void {
+  localStorage.setItem(STORAGE_KEYS.TERMINAL_COLLAPSED, collapsed.toString())
+}
+
+export function getLeftSidebarWidth(): number {
+  const stored = localStorage.getItem(STORAGE_KEYS.LEFT_SIDEBAR_WIDTH)
+  return stored ? parseInt(stored, 10) : 280
+}
+
+export function setLeftSidebarWidth(width: number): void {
+  localStorage.setItem(STORAGE_KEYS.LEFT_SIDEBAR_WIDTH, width.toString())
+}
+
+export function getRightSidebarWidth(): number {
+  const stored = localStorage.getItem(STORAGE_KEYS.RIGHT_SIDEBAR_WIDTH)
+  return stored ? parseInt(stored, 10) : 400
+}
+
+export function setRightSidebarWidth(width: number): void {
+  localStorage.setItem(STORAGE_KEYS.RIGHT_SIDEBAR_WIDTH, width.toString())
+}

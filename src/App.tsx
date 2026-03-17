@@ -51,9 +51,14 @@ import {
   countWords,
   getSidebarCollapsed,
   setSidebarCollapsed,
+  getTerminalCollapsed,
+  setTerminalCollapsed,
+  getLeftSidebarWidth,
+  setLeftSidebarWidth,
+  getRightSidebarWidth,
+  setRightSidebarWidth,
 } from './lib/storage'
 import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
-import { cn } from './lib/utils'
 
 function App() {
   const [authState, setAuthState] = useState<'loading' | 'setup' | 'login' | 'authenticated'>('loading')
@@ -63,7 +68,9 @@ function App() {
   const [viewMode, setViewModeState] = useState<ViewMode>('source')
   const [isSaving, setIsSaving] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsedState] = useState(false)
-  const [terminalOpen, setTerminalOpen] = useState(false)
+  const [terminalCollapsed, setTerminalCollapsedState] = useState(false)
+  const [leftWidth, setLeftWidth] = useState(280)
+  const [rightWidth, setRightWidth] = useState(400)
   
   const [renameDialogOpen, setRenameDialogOpen] = useState(false)
   const [renameNodeId, setRenameNodeId] = useState<string | null>(null)
@@ -83,6 +90,10 @@ function App() {
   const [editorSettings, setEditorSettings] = useState<EditorSettings>(getEditorSettings())
   
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const leftResizeRef = useRef<HTMLDivElement>(null)
+  const rightResizeRef = useRef<HTMLDivElement>(null)
+  const isResizingLeft = useRef(false)
+  const isResizingRight = useRef(false)
 
   useEffect(() => {
     if (hasPasswordSet()) {
@@ -113,11 +124,56 @@ function App() {
       const savedSidebarCollapsed = getSidebarCollapsed()
       setSidebarCollapsedState(savedSidebarCollapsed)
       
+      const savedTerminalCollapsed = getTerminalCollapsed()
+      setTerminalCollapsedState(savedTerminalCollapsed)
+      
+      const savedLeftWidth = getLeftSidebarWidth()
+      setLeftWidth(savedLeftWidth)
+      
+      const savedRightWidth = getRightSidebarWidth()
+      setRightWidth(savedRightWidth)
+      
       const settings = getEditorSettings()
       setEditorSettings(settings)
       applyTheme(settings.colorTheme)
     }
   }, [authState])
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isResizingLeft.current) {
+        const newWidth = Math.max(200, Math.min(600, e.clientX))
+        setLeftWidth(newWidth)
+      }
+      if (isResizingRight.current) {
+        const newWidth = Math.max(300, Math.min(800, window.innerWidth - e.clientX))
+        setRightWidth(newWidth)
+      }
+    }
+
+    const handleMouseUp = () => {
+      if (isResizingLeft.current) {
+        isResizingLeft.current = false
+        setLeftSidebarWidth(leftWidth)
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+      }
+      if (isResizingRight.current) {
+        isResizingRight.current = false
+        setRightSidebarWidth(rightWidth)
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+      }
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [leftWidth, rightWidth])
 
   const handleSetupPassword = async (password: string) => {
     await setPassword(password)
@@ -306,6 +362,24 @@ function App() {
     setSidebarCollapsed(newState)
   }
 
+  const handleToggleTerminal = () => {
+    const newState = !terminalCollapsed
+    setTerminalCollapsedState(newState)
+    setTerminalCollapsed(newState)
+  }
+
+  const handleLeftResizeStart = () => {
+    isResizingLeft.current = true
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+  }
+
+  const handleRightResizeStart = () => {
+    isResizingRight.current = true
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+  }
+
   if (authState === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -329,7 +403,7 @@ function App() {
     <div className="h-screen flex flex-col bg-background text-foreground">
       <Toaster position="top-right" />
       
-      <div className="h-12 border-b border-border flex items-center px-3 gap-4">
+      <div className="h-12 border-b border-border flex items-center px-3 gap-4 flex-shrink-0">
         <Button
           variant="ghost"
           size="sm"
@@ -397,9 +471,9 @@ function App() {
         <div className="flex-1" />
 
         <Button
-          variant="ghost"
+          variant={terminalCollapsed ? 'ghost' : 'default'}
           size="sm"
-          onClick={() => setTerminalOpen(true)}
+          onClick={handleToggleTerminal}
           className="gap-2"
         >
           <TerminalWindow size={16} />
@@ -433,7 +507,7 @@ function App() {
             <motion.div
               initial={{ width: 0, opacity: 0 }}
               animate={{ 
-                width: editorSettings.sidebarWidth, 
+                width: leftWidth, 
                 opacity: 1 
               }}
               exit={{ width: 0, opacity: 0 }}
@@ -442,9 +516,10 @@ function App() {
                 duration: 0.2,
                 ease: 'easeInOut'
               }}
-              className="border-r border-border overflow-y-auto" 
+              className="border-r border-border overflow-y-auto relative" 
               style={{ 
                 backgroundColor: 'var(--card)',
+                width: leftWidth,
               }}
             >
               <FileTreeView
@@ -457,6 +532,12 @@ function App() {
                 onNewFile={(parentId) => handleNewItem('file', parentId)}
                 onNewFolder={(parentId) => handleNewItem('folder', parentId)}
                 onMove={handleMove}
+              />
+              <div
+                ref={leftResizeRef}
+                onMouseDown={handleLeftResizeStart}
+                className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/50 transition-colors"
+                style={{ zIndex: 10 }}
               />
             </motion.div>
           )}
@@ -482,9 +563,42 @@ function App() {
             </div>
           )}
         </div>
+
+        <AnimatePresence initial={false}>
+          {!terminalCollapsed && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ 
+                width: rightWidth, 
+                opacity: 1 
+              }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ 
+                type: 'tween',
+                duration: 0.2,
+                ease: 'easeInOut'
+              }}
+              className="relative" 
+              style={{ 
+                width: rightWidth,
+              }}
+            >
+              <div
+                ref={rightResizeRef}
+                onMouseDown={handleRightResizeStart}
+                className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-primary/50 transition-colors"
+                style={{ zIndex: 10 }}
+              />
+              <Terminal 
+                collapsed={terminalCollapsed}
+                onToggle={handleToggleTerminal}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      <div className="h-8 border-t border-border flex items-center px-4 text-xs font-mono text-muted-foreground">
+      <div className="h-8 border-t border-border flex items-center px-4 text-xs font-mono text-muted-foreground flex-shrink-0">
         {activeFile && activeFile.type === 'file' ? (
           <>
             <span>{activeFile.name}</span>
@@ -585,11 +699,6 @@ function App() {
         open={settingsOpen} 
         onOpenChange={setSettingsOpen}
         onSettingsChange={handleSettingsChange}
-      />
-
-      <Terminal 
-        open={terminalOpen} 
-        onOpenChange={setTerminalOpen}
       />
     </div>
   )
