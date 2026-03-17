@@ -222,5 +222,3 @@ Type 'help' for available commands.`
     </>
   )
 }
-  )
-}
