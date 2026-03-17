@@ -11,18 +11,26 @@ A self-hosted, password-protected Markdown editor for personal note-taking and d
 - **6 Color Themes** — Midnight, Ocean, Forest, Sunset, Monochrome, and Manta
 - **Docker Ready** — One command to deploy with persistent storage
 
-## Quick Start
+## Getting Started
 
 ```bash
-# Development
+git clone https://github.com/varienos/markvault.git
+cd markvault
 npm install
 npm run dev
+```
 
-# Production (Docker)
+Open `http://localhost:5173` and start writing.
+
+### Docker
+
+```bash
+git clone https://github.com/varienos/markvault.git
+cd markvault
 docker compose up -d
 ```
 
-The app runs at `http://localhost:5173` in dev mode, or `http://localhost:1245` via Docker.
+Runs at `http://localhost:1245` with persistent storage out of the box.
 
 ## Tech Stack
 
