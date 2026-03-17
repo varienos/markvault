@@ -701,3 +701,5 @@ export default function App() {
         onSettingsChange={handleSettingsChange}
       />
     </div>
+  )
+}
