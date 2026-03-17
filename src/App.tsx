@@ -60,6 +60,7 @@ import {
 } from './lib/storage'
 import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
 
+export default function App() {
   const [authState, setAuthState] = useState<'loading' | 'setup' | 'login' | 'authenticated'>('loading')
   const [fileTree, setFileTree] = useState<FileTree>({})
   const [activeFileId, setActiveFileIdState] = useState<string | null>(null)
@@ -67,7 +68,6 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
   const [viewMode, setViewModeState] = useState<ViewMode>('source')
   const [isSaving, setIsSaving] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsedState] = useState(false)
-  const [terminalCollapsed, setTerminalCollapsedState] = useState(false)
   const [terminalCollapsed, setTerminalCollapsedState] = useState(false)
   const [leftWidth, setLeftWidth] = useState(280)
   const [rightWidth, setRightWidth] = useState(400)
@@ -90,11 +90,11 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
   
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const leftResizeRef = useRef<HTMLDivElement>(null)
-  const leftResizeRef = useRef<HTMLDivElement>(null))
   const rightResizeRef = useRef<HTMLDivElement>(null)
   const isResizingLeft = useRef(false)
   const isResizingRight = useRef(false)
 
+  useEffect(() => {
     if (hasPasswordSet()) {
       if (isAuthenticated()) {
         setAuthState('authenticated')
@@ -124,7 +124,6 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
       setSidebarCollapsedState(savedSidebarCollapsed)
       
       const savedTerminalCollapsed = getTerminalCollapsed()
-      const savedTerminalCollapsed = getTerminalCollapsed()
       setTerminalCollapsedState(savedTerminalCollapsed)
       
       const savedLeftWidth = getLeftSidebarWidth()
@@ -133,12 +132,12 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
       const savedRightWidth = getRightSidebarWidth()
       setRightWidth(savedRightWidth)
       
+      const settings = getEditorSettings()
       setEditorSettings(settings)
       applyTheme(settings.colorTheme)
     }
   }, [authState])
 
-  useEffect(() => {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isResizingLeft.current) {
@@ -175,6 +174,7 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
     }
   }, [leftWidth, rightWidth])
 
+  const handleSetupPassword = async (password: string) => {
     await setPassword(password)
     setAuthState('authenticated')
     toast.success('Password set successfully')
@@ -362,7 +362,6 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
   }
 
   const handleToggleTerminal = () => {
-  const handleToggleTerminal = () => {
     const newState = !terminalCollapsed
     setTerminalCollapsedState(newState)
     setTerminalCollapsed(newState)
@@ -380,6 +379,7 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
     document.body.style.userSelect = 'none'
   }
 
+  if (authState === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-muted-foreground">Loading...</div>
@@ -403,7 +403,7 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
       <Toaster position="top-right" />
       
       <div className="h-12 border-b border-border flex items-center px-3 gap-4 flex-shrink-0">
-      <div className="h-12 border-b border-border flex items-center px-3 gap-4 flex-shrink-0">
+        <Button
           variant="ghost"
           size="sm"
           onClick={handleToggleSidebar}
@@ -471,9 +471,9 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
 
         <Button
           variant={terminalCollapsed ? 'ghost' : 'default'}
-          variant={terminalCollapsed ? 'ghost' : 'default'}
+          size="sm"
           onClick={handleToggleTerminal}
-          onClick={handleToggleTerminal}
+          className="gap-2"
         >
           <TerminalWindow size={16} />
           <span className="hidden md:inline">Terminal</span>
@@ -507,7 +507,7 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
               initial={{ width: 0, opacity: 0 }}
               animate={{ 
                 width: leftWidth, 
-                width: leftWidth, 
+                opacity: 1 
               }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ 
@@ -516,10 +516,10 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
                 ease: 'easeInOut'
               }}
               className="border-r border-border overflow-y-auto relative" 
-              className="border-r border-border overflow-y-auto relative" 
+              style={{ 
                 backgroundColor: 'var(--card)',
                 width: leftWidth,
-                width: leftWidth,
+              }}
             >
               <FileTreeView
                 tree={fileTree}
@@ -533,12 +533,12 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
                 onMove={handleMove}
               />
               <div
-              <div
                 ref={leftResizeRef}
                 onMouseDown={handleLeftResizeStart}
                 className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/50 transition-colors"
                 style={{ zIndex: 10 }}
               />
+            </motion.div>
           )}
         </AnimatePresence>
 
@@ -596,9 +596,10 @@ import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
 
       <div className="h-8 border-t border-border flex items-center px-4 text-xs font-mono text-muted-foreground flex-shrink-0">
-      <div className="h-8 border-t border-border flex items-center px-4 text-xs font-mono text-muted-foreground flex-shrink-0">
+        {activeFile ? (
           <>
             <span>{activeFile.name}</span>
             <span className="mx-2">·</span>
