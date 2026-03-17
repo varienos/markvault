@@ -1,8 +1,8 @@
 node_modules
 dist
 .git
-.github
+.claude
 .DS_Store
-PRD.md
+CLAUDE.md
 README.md
-SECURITY.md
+LICENSE

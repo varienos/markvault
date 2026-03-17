@@ -2,6 +2,9 @@
 
 A self-hosted, password-protected Markdown editor for personal note-taking and documentation. Write, organize, and preview your notes — all in one place, entirely under your control.
 
+![License](https://img.shields.io/github/license/varienos/markvault)
+![GitHub last commit](https://img.shields.io/github/last-commit/varienos/markvault)
+
 ## Features
 
 - **File Tree Explorer** — Create, rename, delete, and drag-drop files and folders with unlimited nesting
@@ -45,6 +48,10 @@ Runs at `http://localhost:1245` with persistent storage out of the box.
 ## How It Works
 
 MarkVault uses a dual-layer persistence model. Notes save instantly to `localStorage` for speed, then sync to an Express backend for durability. All data lives in a `/data` volume — no external database needed.
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
 
 ## License
 
