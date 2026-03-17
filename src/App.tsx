@@ -48,7 +48,7 @@ import {
   deleteNodeRecursive,
   countWords,
 } from './lib/storage'
-import { getEditorSettings, EditorSettings } from './lib/settings'
+import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
 import { cn } from './lib/utils'
 
 function App() {
@@ -103,6 +103,10 @@ function App() {
       
       const savedViewMode = getViewMode()
       setViewModeState(savedViewMode)
+      
+      const settings = getEditorSettings()
+      setEditorSettings(settings)
+      applyTheme(settings.colorTheme)
     }
   }, [authState])
 

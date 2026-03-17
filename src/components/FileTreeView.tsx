@@ -104,9 +104,9 @@ function FileTreeNode({
           <div
             className={cn(
               'flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer transition-colors',
-              'hover:bg-muted/50',
+              'hover:bg-accent/30',
               isActive && 'bg-accent/20 border-l-2 border-accent',
-              isDragOver && isFolder && 'bg-accent/30 border-2 border-accent border-dashed'
+              isDragOver && isFolder && 'bg-accent/40 border-2 border-accent border-dashed'
             )}
             style={{ paddingLeft: `${level * 16 + 8}px` }}
             onClick={handleClick}
