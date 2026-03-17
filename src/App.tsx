@@ -60,7 +60,6 @@ import {
 } from './lib/storage'
 import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
 
-function App() {
   const [authState, setAuthState] = useState<'loading' | 'setup' | 'login' | 'authenticated'>('loading')
   const [fileTree, setFileTree] = useState<FileTree>({})
   const [activeFileId, setActiveFileIdState] = useState<string | null>(null)
@@ -69,9 +68,9 @@ function App() {
   const [isSaving, setIsSaving] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsedState] = useState(false)
   const [terminalCollapsed, setTerminalCollapsedState] = useState(false)
+  const [terminalCollapsed, setTerminalCollapsedState] = useState(false)
   const [leftWidth, setLeftWidth] = useState(280)
   const [rightWidth, setRightWidth] = useState(400)
-  
   const [renameDialogOpen, setRenameDialogOpen] = useState(false)
   const [renameNodeId, setRenameNodeId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
@@ -91,11 +90,11 @@ function App() {
   
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const leftResizeRef = useRef<HTMLDivElement>(null)
+  const leftResizeRef = useRef<HTMLDivElement>(null))
   const rightResizeRef = useRef<HTMLDivElement>(null)
   const isResizingLeft = useRef(false)
   const isResizingRight = useRef(false)
 
-  useEffect(() => {
     if (hasPasswordSet()) {
       if (isAuthenticated()) {
         setAuthState('authenticated')
@@ -125,6 +124,7 @@ function App() {
       setSidebarCollapsedState(savedSidebarCollapsed)
       
       const savedTerminalCollapsed = getTerminalCollapsed()
+      const savedTerminalCollapsed = getTerminalCollapsed()
       setTerminalCollapsedState(savedTerminalCollapsed)
       
       const savedLeftWidth = getLeftSidebarWidth()
@@ -133,12 +133,12 @@ function App() {
       const savedRightWidth = getRightSidebarWidth()
       setRightWidth(savedRightWidth)
       
-      const settings = getEditorSettings()
       setEditorSettings(settings)
       applyTheme(settings.colorTheme)
     }
   }, [authState])
 
+  useEffect(() => {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isResizingLeft.current) {
@@ -175,7 +175,6 @@ function App() {
     }
   }, [leftWidth, rightWidth])
 
-  const handleSetupPassword = async (password: string) => {
     await setPassword(password)
     setAuthState('authenticated')
     toast.success('Password set successfully')
@@ -363,6 +362,7 @@ function App() {
   }
 
   const handleToggleTerminal = () => {
+  const handleToggleTerminal = () => {
     const newState = !terminalCollapsed
     setTerminalCollapsedState(newState)
     setTerminalCollapsed(newState)
@@ -380,7 +380,6 @@ function App() {
     document.body.style.userSelect = 'none'
   }
 
-  if (authState === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-muted-foreground">Loading...</div>
@@ -404,7 +403,7 @@ function App() {
       <Toaster position="top-right" />
       
       <div className="h-12 border-b border-border flex items-center px-3 gap-4 flex-shrink-0">
-        <Button
+      <div className="h-12 border-b border-border flex items-center px-3 gap-4 flex-shrink-0">
           variant="ghost"
           size="sm"
           onClick={handleToggleSidebar}
@@ -472,9 +471,9 @@ function App() {
 
         <Button
           variant={terminalCollapsed ? 'ghost' : 'default'}
-          size="sm"
+          variant={terminalCollapsed ? 'ghost' : 'default'}
           onClick={handleToggleTerminal}
-          className="gap-2"
+          onClick={handleToggleTerminal}
         >
           <TerminalWindow size={16} />
           <span className="hidden md:inline">Terminal</span>
@@ -508,7 +507,7 @@ function App() {
               initial={{ width: 0, opacity: 0 }}
               animate={{ 
                 width: leftWidth, 
-                opacity: 1 
+                width: leftWidth, 
               }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ 
@@ -517,10 +516,10 @@ function App() {
                 ease: 'easeInOut'
               }}
               className="border-r border-border overflow-y-auto relative" 
-              style={{ 
+              className="border-r border-border overflow-y-auto relative" 
                 backgroundColor: 'var(--card)',
                 width: leftWidth,
-              }}
+                width: leftWidth,
             >
               <FileTreeView
                 tree={fileTree}
@@ -534,12 +533,12 @@ function App() {
                 onMove={handleMove}
               />
               <div
+              <div
                 ref={leftResizeRef}
                 onMouseDown={handleLeftResizeStart}
                 className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/50 transition-colors"
                 style={{ zIndex: 10 }}
               />
-            </motion.div>
           )}
         </AnimatePresence>
 
@@ -563,6 +562,7 @@ function App() {
             </div>
           )}
         </div>
+
 
         <AnimatePresence initial={false}>
           {!terminalCollapsed && (
@@ -596,10 +596,9 @@ function App() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
 
       <div className="h-8 border-t border-border flex items-center px-4 text-xs font-mono text-muted-foreground flex-shrink-0">
-        {activeFile && activeFile.type === 'file' ? (
+      <div className="h-8 border-t border-border flex items-center px-4 text-xs font-mono text-muted-foreground flex-shrink-0">
           <>
             <span>{activeFile.name}</span>
             <span className="mx-2">·</span>
@@ -701,7 +700,3 @@ function App() {
         onSettingsChange={handleSettingsChange}
       />
     </div>
-  )
-}
-
-export default App
