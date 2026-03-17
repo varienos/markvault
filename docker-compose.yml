@@ -1,0 +1,11 @@
+services:
+  markvault:
+    build: .
+    ports:
+      - "1245:1245"
+    volumes:
+      - markvault-data:/data
+    restart: unless-stopped
+
+volumes:
+  markvault-data:

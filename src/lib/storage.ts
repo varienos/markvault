@@ -1,5 +1,6 @@
 import { FileTree, TreeNode, ViewMode } from './types'
 import { STORAGE_KEYS } from './auth'
+import { syncTree, syncFileContent, syncDeleteFile, syncState } from './api'
 
 export function generateId(): string {
   return crypto.randomUUID()
@@ -17,6 +18,7 @@ export function getFileTree(): FileTree {
 
 export function saveFileTree(tree: FileTree): void {
   localStorage.setItem(STORAGE_KEYS.FILE_TREE, JSON.stringify(tree))
+  syncTree(tree)
 }
 
 export function getFileContent(fileId: string): string {
@@ -25,10 +27,12 @@ export function getFileContent(fileId: string): string {
 
 export function saveFileContent(fileId: string, content: string): void {
   localStorage.setItem(`md_file_content_${fileId}`, content)
+  syncFileContent(fileId, content)
 }
 
 export function deleteFileContent(fileId: string): void {
   localStorage.removeItem(`md_file_content_${fileId}`)
+  syncDeleteFile(fileId)
 }
 
 export function getActiveFileId(): string | null {
@@ -41,6 +45,7 @@ export function setActiveFileId(fileId: string | null): void {
   } else {
     localStorage.setItem(STORAGE_KEYS.ACTIVE_FILE, fileId)
   }
+  syncState({ activeFile: fileId })
 }
 
 export function getViewMode(): ViewMode {
@@ -53,6 +58,7 @@ export function getViewMode(): ViewMode {
 
 export function setViewMode(mode: ViewMode): void {
   localStorage.setItem(STORAGE_KEYS.VIEW_MODE, mode)
+  syncState({ viewMode: mode })
 }
 
 export function getChildNodes(tree: FileTree, parentId: string | null): TreeNode[] {
@@ -98,6 +104,7 @@ export function getSidebarCollapsed(): boolean {
 
 export function setSidebarCollapsed(collapsed: boolean): void {
   localStorage.setItem(STORAGE_KEYS.SIDEBAR_COLLAPSED, collapsed.toString())
+  syncState({ sidebarCollapsed: collapsed })
 }
 
 export function getTerminalCollapsed(): boolean {
@@ -106,6 +113,7 @@ export function getTerminalCollapsed(): boolean {
 
 export function setTerminalCollapsed(collapsed: boolean): void {
   localStorage.setItem(STORAGE_KEYS.TERMINAL_COLLAPSED, collapsed.toString())
+  syncState({ terminalCollapsed: collapsed })
 }
 
 export function getLeftSidebarWidth(): number {
@@ -115,6 +123,7 @@ export function getLeftSidebarWidth(): number {
 
 export function setLeftSidebarWidth(width: number): void {
   localStorage.setItem(STORAGE_KEYS.LEFT_SIDEBAR_WIDTH, width.toString())
+  syncState({ leftSidebarWidth: width })
 }
 
 export function getRightSidebarWidth(): number {
@@ -124,4 +133,5 @@ export function getRightSidebarWidth(): number {
 
 export function setRightSidebarWidth(width: number): void {
   localStorage.setItem(STORAGE_KEYS.RIGHT_SIDEBAR_WIDTH, width.toString())
+  syncState({ rightSidebarWidth: width })
 }

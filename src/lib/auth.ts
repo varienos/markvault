@@ -1,3 +1,5 @@
+import { syncAuth } from './api'
+
 const STORAGE_KEYS = {
   PASSWORD_HASH: 'md_password_hash',
   FILE_TREE: 'md_file_tree',
@@ -27,6 +29,7 @@ export async function setPassword(password: string): Promise<void> {
   const hash = await hashPassword(password)
   localStorage.setItem(STORAGE_KEYS.PASSWORD_HASH, hash)
   localStorage.setItem(STORAGE_KEYS.AUTHENTICATED, 'true')
+  syncAuth({ passwordHash: hash })
 }
 
 export async function verifyPassword(password: string): Promise<boolean> {
@@ -57,6 +60,7 @@ export function isPasswordRequired(): boolean {
 
 export function setPasswordRequired(required: boolean): void {
   localStorage.setItem(STORAGE_KEYS.PASSWORD_REQUIRED, required ? 'true' : 'false')
+  syncAuth({ passwordRequired: required })
 }
 
 export { STORAGE_KEYS }

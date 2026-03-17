@@ -200,6 +200,7 @@ export function getEditorSettings(): EditorSettings {
 
 export function saveEditorSettings(settings: EditorSettings): void {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
+  import('./api').then(({ syncSettings }) => syncSettings(settings))
 }
 
 export function applyTheme(theme: ColorTheme): void {

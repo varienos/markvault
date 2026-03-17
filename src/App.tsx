@@ -60,6 +60,7 @@ import {
   setRightSidebarWidth,
 } from './lib/storage'
 import { getEditorSettings, EditorSettings, applyTheme } from './lib/settings'
+import { loadAllFromServer } from './lib/api'
 
 export default function App() {
   const [authState, setAuthState] = useState<'loading' | 'setup' | 'login' | 'authenticated'>('loading')
@@ -96,17 +97,19 @@ export default function App() {
   const isResizingRight = useRef(false)
 
   useEffect(() => {
-    if (hasPasswordSet()) {
-      if (!isPasswordRequired()) {
-        setAuthState('authenticated')
-      } else if (isAuthenticated()) {
-        setAuthState('authenticated')
+    loadAllFromServer().then(() => {
+      if (hasPasswordSet()) {
+        if (!isPasswordRequired()) {
+          setAuthState('authenticated')
+        } else if (isAuthenticated()) {
+          setAuthState('authenticated')
+        } else {
+          setAuthState('login')
+        }
       } else {
-        setAuthState('login')
+        setAuthState('setup')
       }
-    } else {
-      setAuthState('setup')
-    }
+    })
   }, [])
 
   useEffect(() => {
