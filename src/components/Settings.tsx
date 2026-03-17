@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Separator } from './ui/separator'
 import { Card } from './ui/card'
 import { toast } from 'sonner'
-import { setPassword, verifyPassword } from '../lib/auth'
+import { setPassword, verifyPassword, isPasswordRequired, setPasswordRequired } from '../lib/auth'
 import { getEditorSettings, saveEditorSettings, EditorSettings, ColorTheme, applyTheme } from '../lib/settings'
 import { cn } from '../lib/utils'
 
@@ -30,6 +30,7 @@ export function Settings({ open, onOpenChange, onSettingsChange }: SettingsProps
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [passwordRequired, setPasswordRequiredState] = useState(isPasswordRequired())
   
   const [settings, setSettings] = useState<EditorSettings>(getEditorSettings())
 
@@ -97,7 +98,30 @@ export function Settings({ open, onOpenChange, onSettingsChange }: SettingsProps
 
           <TabsContent value="security" className="space-y-4 mt-4">
             <Card className="p-6">
-              <div className="space-y-4">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-1">Password Protection</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Configure password requirements</p>
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="space-y-0.5">
+                      <Label>Require Password</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Enable password authentication for app access
+                      </p>
+                    </div>
+                    <Switch
+                      checked={passwordRequired}
+                      onCheckedChange={(checked) => {
+                        setPasswordRequiredState(checked)
+                        setPasswordRequired(checked)
+                        toast.success(checked ? 'Password protection enabled' : 'Password protection disabled')
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <Separator />
+
                 <div>
                   <h3 className="text-lg font-semibold mb-1">Change Password</h3>
                   <p className="text-sm text-muted-foreground mb-6">Update your account password</p>

@@ -13,11 +13,11 @@ This requires sophisticated state management with recursive tree structures, rea
 ## Essential Features
 
 ### Password Authentication & Session Management
-- **Functionality**: SHA-256 hashed password stored in localStorage, login gate on app load, session flag cleared on logout
-- **Purpose**: Single-user protection without backend complexity
-- **Trigger**: First visit prompts password creation, subsequent visits show login screen
-- **Progression**: Load app → Check auth state → If no password hash exists, show setup → User creates password → Hash and store → If hash exists but not authenticated, show login → User enters password → Validate hash → Set session flag → Load main app
-- **Success criteria**: Password survives browser restart, wrong password shows error, logout clears session, no access to editor without valid authentication
+- **Functionality**: SHA-256 hashed password stored in localStorage, optional password requirement toggle in settings, login gate on app load (if enabled), session flag cleared on logout
+- **Purpose**: Single-user protection without backend complexity with flexibility to disable password for convenient access
+- **Trigger**: First visit prompts password creation, subsequent visits check password requirement setting, settings toggle controls password enforcement
+- **Progression**: Load app → Check auth state → If no password hash exists, show setup → User creates password → Hash and store → If password not required, auto-authenticate → If password required and not authenticated, show login → User enters password → Validate hash → Set session flag → Load main app
+- **Success criteria**: Password survives browser restart, wrong password shows error, logout clears session, password requirement toggle works immediately, passwordless mode bypasses login screen
 
 ### File Tree Explorer with Nested Folders
 - **Functionality**: Unlimited-depth folder hierarchy, create/rename/delete files and folders, expand/collapse folders, visual active file highlighting

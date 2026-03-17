@@ -36,6 +36,7 @@ import {
   verifyPassword,
   setAuthenticated,
   logout,
+  isPasswordRequired,
 } from './lib/auth'
 import {
   getFileTree,
@@ -96,7 +97,9 @@ export default function App() {
 
   useEffect(() => {
     if (hasPasswordSet()) {
-      if (isAuthenticated()) {
+      if (!isPasswordRequired()) {
+        setAuthState('authenticated')
+      } else if (isAuthenticated()) {
         setAuthState('authenticated')
       } else {
         setAuthState('login')

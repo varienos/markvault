@@ -8,6 +8,7 @@ const STORAGE_KEYS = {
   TERMINAL_COLLAPSED: 'md_terminal_collapsed',
   LEFT_SIDEBAR_WIDTH: 'md_left_sidebar_width',
   RIGHT_SIDEBAR_WIDTH: 'md_right_sidebar_width',
+  PASSWORD_REQUIRED: 'md_password_required',
 } as const
 
 export async function hashPassword(password: string): Promise<string> {
@@ -46,6 +47,16 @@ export function setAuthenticated(): void {
 
 export function logout(): void {
   localStorage.removeItem(STORAGE_KEYS.AUTHENTICATED)
+}
+
+export function isPasswordRequired(): boolean {
+  const value = localStorage.getItem(STORAGE_KEYS.PASSWORD_REQUIRED)
+  if (value === null) return true
+  return value === 'true'
+}
+
+export function setPasswordRequired(required: boolean): void {
+  localStorage.setItem(STORAGE_KEYS.PASSWORD_REQUIRED, required ? 'true' : 'false')
 }
 
 export { STORAGE_KEYS }
