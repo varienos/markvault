@@ -3,6 +3,7 @@ import { PasswordSetup } from './components/PasswordSetup'
 import { Login } from './components/Login'
 import { FileTreeView } from './components/FileTreeView'
 import { MarkdownEditor } from './components/MarkdownEditor'
+import { Settings } from './components/Settings'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import {
@@ -23,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from './components/ui/alert-dialog'
-import { Folder, FileText, Code, Columns, Eye, SignOut, Check } from '@phosphor-icons/react'
+import { Folder, FileText, Code, Columns, Eye, SignOut, Check, Gear } from '@phosphor-icons/react'
 import { toast, Toaster } from 'sonner'
 import { FileTree, ViewMode, FolderNode } from './lib/types'
 import {
@@ -47,6 +48,7 @@ import {
   deleteNodeRecursive,
   countWords,
 } from './lib/storage'
+import { getEditorSettings, EditorSettings } from './lib/settings'
 import { cn } from './lib/utils'
 
 function App() {
@@ -70,6 +72,9 @@ function App() {
     parentId: null,
   })
   const [newItemName, setNewItemName] = useState('')
+  
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [editorSettings, setEditorSettings] = useState<EditorSettings>(getEditorSettings())
   
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -135,8 +140,8 @@ function App() {
     saveTimeoutRef.current = setTimeout(() => {
       saveFileContent(fileId, content)
       setIsSaving(false)
-    }, 300)
-  }, [])
+    }, editorSettings.autoSaveDelay)
+  }, [editorSettings.autoSaveDelay])
 
   const handleContentChange = (content: string) => {
     setFileContent(content)
@@ -278,6 +283,10 @@ function App() {
     toast.success('Moved successfully')
   }
 
+  const handleSettingsChange = (newSettings: EditorSettings) => {
+    setEditorSettings(newSettings)
+  }
+
   if (authState === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -360,6 +369,16 @@ function App() {
         <Button
           variant="ghost"
           size="sm"
+          onClick={() => setSettingsOpen(true)}
+          className="gap-2"
+        >
+          <Gear size={16} />
+          <span className="hidden md:inline">Settings</span>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={handleLogout}
           className="gap-2"
         >
@@ -369,7 +388,13 @@ function App() {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        <div className="w-64 border-r border-border overflow-y-auto" style={{ backgroundColor: 'var(--card)' }}>
+        <div 
+          className="border-r border-border overflow-y-auto" 
+          style={{ 
+            backgroundColor: 'var(--card)',
+            width: `${editorSettings.sidebarWidth}px`
+          }}
+        >
           <FileTreeView
             tree={fileTree}
             activeFileId={activeFileId}
@@ -501,6 +526,12 @@ function App() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Settings 
+        open={settingsOpen} 
+        onOpenChange={setSettingsOpen}
+        onSettingsChange={handleSettingsChange}
+      />
     </div>
   )
 }
